@@ -1,0 +1,23 @@
+#cloud-config
+disable_root: true
+
+system_info:
+  default_user:
+    name: admin
+    lock_passwd: True
+    gecos: Debian
+    groups:
+      [adm, audio, cdrom, dialout, dip, floppy, netdev, plugdev, sudo, video]
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    shell: /bin/bash
+
+write_files:
+  - content: |
+      auto ${private_interface}
+      iface ${private_interface} inet dhcp
+        post-up ip route add default via 10.0.0.1
+        dns-nameservers 1.1.1.1
+    path: /etc/network/interfaces.d/51-private-network
+
+runcmd:
+  - [ systemctl, restart, networking ]

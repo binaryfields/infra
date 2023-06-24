@@ -1,0 +1,15 @@
+#cloud-config
+disable_root: true
+
+system_info:
+  default_user:
+     name: admin
+     lock_passwd: True
+     gecos: Debian
+     groups: [adm, audio, cdrom, dialout, dip, floppy, netdev, plugdev, sudo, video]
+     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+     shell: /bin/bash
+
+runcmd:
+  - [ sysctl, -w, "net.ipv4.ip_forward=1" ]
+  - [ iptables, -t, nat, -A, POSTROUTING, -s, "10.0.0.0/16", -o, eth0, -j, MASQUERADE ]

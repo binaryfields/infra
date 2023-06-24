@@ -1,0 +1,14 @@
+servers:
+    xh get https://api.hetzner.cloud/v1/servers Authorization:"Bearer $TF_VAR_hcloud_token"
+
+debian-image:
+    xh get https://api.hetzner.cloud/v1/images name==debian-11 Authorization:"Bearer $TF_VAR_hcloud_token"
+
+flow-up:
+    terraform apply -var-file=env/flow.tfvars
+
+flow-down:
+    terraform destroy -var-file=env/flow.tfvars
+
+validate:
+    terraform validate
