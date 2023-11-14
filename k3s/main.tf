@@ -8,8 +8,8 @@ resource "hcloud_network" "private" {
 }
 
 resource "hcloud_network_subnet" "private_subnet" {
-  network_id   = hcloud_network.private.id
   type         = "cloud"
+  network_id   = hcloud_network.private.id
   network_zone = var.network_zone
   ip_range     = "10.0.0.0/24"
 }
@@ -23,9 +23,9 @@ resource "hcloud_network_route" "private_route_1" {
 resource "hcloud_server" "gateway" {
   name = "${var.cluster_name}-gateway"
 
-  datacenter  = var.datacenter
   server_type = var.gateway_type
   image       = var.gateway_image
+  datacenter  = var.datacenter
   ssh_keys    = [var.ssh_key_name]
   user_data = templatefile(
     "${path.module}/templates/cloud/gateway.tftpl", {}
@@ -45,9 +45,9 @@ resource "hcloud_server" "master" {
   count = var.master_count
   name  = "${var.cluster_name}-master-${count.index + 1}"
 
-  datacenter  = var.datacenter
   server_type = var.master_type
   image       = var.instance_image
+  datacenter  = var.datacenter
   ssh_keys    = [var.ssh_key_name]
   user_data = templatefile(
     "${path.module}/templates/cloud/private.tftpl",
@@ -73,9 +73,9 @@ resource "hcloud_server" "node" {
   count = var.node_count
   name  = "${var.cluster_name}-node-${count.index + 1}"
 
-  datacenter  = var.datacenter
   server_type = var.node_type
   image       = var.instance_image
+  datacenter  = var.datacenter
   ssh_keys    = [var.ssh_key_name]
   user_data = templatefile(
     "${path.module}/templates/cloud/private.tftpl",
@@ -100,13 +100,15 @@ resource "hcloud_server" "node" {
 resource "hcloud_volume" "node_data" {
   count     = var.node_count
   name      = "${var.cluster_name}-node-data-${count.index + 1}"
-  location = var.location
+
   size      = var.node_volume_size
   format    = "xfs"
+  location = var.location
 }
 
 resource "hcloud_volume_attachment" "node_data" {
   count     = var.node_count
+
   volume_id = hcloud_volume.node_data[count.index].id
   server_id = hcloud_server.node[count.index].id
 }
