@@ -36,7 +36,11 @@ resource "hcloud_server" "gateway" {
     ip         = var.gateway_private_ip
   }
 
-  firewall_ids = [hcloud_firewall.gateway_ssh_sg.id]
+  firewall_ids = [
+    hcloud_firewall.gateway_ssh_sg.id,
+    hcloud_firewall.proxy_http_sg.id,
+    hcloud_firewall.proxy_ssh_sg.id
+  ]
 
   depends_on = [hcloud_network_subnet.private_subnet]
 }
@@ -56,6 +60,7 @@ resource "hcloud_server" "master" {
 
   network {
     network_id = hcloud_network.private.id
+    alias_ips = []
   }
 
   public_net {
@@ -84,6 +89,7 @@ resource "hcloud_server" "node" {
 
   network {
     network_id = hcloud_network.private.id
+    alias_ips = []
   }
 
   public_net {
@@ -119,6 +125,35 @@ resource "hcloud_firewall" "gateway_ssh_sg" {
     direction  = "in"
     protocol   = "tcp"
     port       = "22"
-    source_ips = ["0.0.0.0/0"]
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+}
+
+resource "hcloud_firewall" "proxy_http_sg" {
+  name = "${var.cluster_name}-proxy-http"
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "443"
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+}
+
+resource "hcloud_firewall" "proxy_ssh_sg" {
+  name = "${var.cluster_name}-proxy-ssh"
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "2222"
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
   }
 }
