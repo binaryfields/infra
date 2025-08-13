@@ -1,0 +1,5 @@
+plan:
+    tofu plan -var-file=orion.tfvars
+
+apply:
+    tofu apply -var-file=orion.tfvars
